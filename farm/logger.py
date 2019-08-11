@@ -5,18 +5,15 @@ import getpass
 import time
 import traceback
 import pandas as pd
-from sqlalchemy import create_engine
 import urllib
 
 import farm.config as CONFIG
 
 class Logger(logging.Handler):
-    def __init__(self, config, con, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         super(logging.Handler, self).__init__(*args, **kwargs)
         # yaml config file
         self.config = config
-        # sql connection already established
-        self.con = con
         self.get_user()
 
         today = time.strftime("%Y-%m-%d")

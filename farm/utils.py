@@ -6,12 +6,6 @@ import logging
 import time
 from sqlalchemy import create_engine
 
-# python2 and python3 compatible
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-     from urllib import pathname2url as quote_plus
-
 import farm.config as CONFIG
 
 def get_user():
@@ -70,52 +64,3 @@ def clean_logs(report_config, logger):
             logger.info('Not a possible log period to remove for')
             return -1
         return 0
-
-def connection(report_config):
-    connection_str = (r'DRIVER=%s;SERVER=%s;DATABASE=%s;Trusted_Connection=%s;' % (
-        report_config['driver'],
-        report_config['server'],
-        report_config['database'],
-        report_config['trusted_connection']
-    ))
-    aml_internal_params = quote_plus(connection_str)
-    con = create_engine('mssql+pyodbc:///?odbc_connect=%s' % aml_internal_params)
-    return con
-
-def check_credentials(report_config):
-    '''
-    Check the credentials file to see if the file was modified on the date of execution.
-    If it was not modified, return False.
-
-    Parameters
-    ----------
-    report_config: dict
-        report configuration information
-
-    Returns
-    -------
-    modified: bool
-        indicator of whether credentials were updated or not
-    '''
-
-    file_modified_time = os.path.getmtime(report_config['credentials'])
-    file_modified_time = datetime.utcfromtimestamp(file_modified_time).strftime('%Y-%m-%d')
-    today = datetime.today().strftime('%Y-%m-%d')
-    if file_modified_time != today:
-        return False
-    else:
-        return True
-
-
-# Outputs to MIS_Internal table
-def create_sql_output(df, output_table, report_config, logger):
-    try:
-        df.to_sql(name=output_table,
-                  schema='db_datareader',
-                  if_exists='replace',
-                  index=False,
-                  con=connection(report_config)
-                 )
-    except Exception as e:
-        logger.exception('Error: failed to write data to sql.' + str(e))
-        print('Error: failed to write data to sql.' + str(e))
