@@ -13,6 +13,11 @@ pip install -r requirements.txt
 
 ### Setup
 
+1. Change the path of the `farm/constant.py` script to the local folder that you placed the project in.
+```
+local_dir = r"D:\Users\neils\projects\api-farms"
+```
+
 #### **WITH MAKE**
 
 1. Build
